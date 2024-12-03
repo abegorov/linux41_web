@@ -81,20 +81,20 @@ aa572016e17d   mysql:9.1.0                                "docker-entrypoint.s�
 
 Откроем [http://localhost:8081](http://localhost:8081):
 
-[!django](images/django.png)
+![django](images/django.png)
 
 Попробуем войти в админку по адресу [http://localhost:8081/admin](http://localhost:8081/admin), используя имя пользователя **admin** и пароль в файле **passwords/compose_dynamicweb_djangoapp_passwd.txt**:
 
-[!django login](images/django_login.png)
+![django login](images/django_login.png)
 
 Вход успешен:
 
-[!django admin](images/django_admin.png)
+![django admin](images/django_admin.png)
 
 Откроем [http://localhost:8082](http://localhost:8082):
 
-[!Hello from node js server](images/node.png)
+![Hello from node js server](images/node.png)
 
 Откроем [http://localhost:8083](http://localhost:8083):
 
-[!WordPress Installation](images/wordpress.png):
+![WordPress Installation](images/wordpress.png):
