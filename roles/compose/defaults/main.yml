@@ -1,0 +1,5 @@
+---
+compose_user: docker
+compose_home: /docker
+compose_projects: []
+...

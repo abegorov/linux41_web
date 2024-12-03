@@ -1,0 +1,13 @@
+---
+compose_projects: [dynamicweb]
+docker_users_list: [vagrant]
+
+compose_dynamicweb_djangoapp_secret: '{{ lookup("ansible.builtin.password",
+  "passwords/compose_dynamicweb_djangoapp_secret.txt", length=26) }}'
+compose_dynamicweb_djangoapp_passwd: '{{ lookup("ansible.builtin.password",
+  "passwords/compose_dynamicweb_djangoapp_passwd.txt", length=26) }}'
+compose_dynamicweb_wordpressdb_passwd: '{{ lookup("ansible.builtin.password",
+  "passwords/compose_dynamicweb_wordpressdb_passwd.txt", length=26) }}'
+compose_dynamicweb_wordpressdb_root: '{{ lookup("ansible.builtin.password",
+  "passwords/compose_dynamicweb_wordpressdb_root.txt", length=26) }}'
+...

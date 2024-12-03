@@ -1,0 +1,46 @@
+---
+- name: Create compose user
+  ansible.builtin.user:
+    name: '{{ compose_user }}'
+    system: true
+    group: docker
+    shell: /sbin/nologin
+    home: '{{ compose_home }}'
+    skeleton: /dev/null
+    password: '*'
+
+- name: Create compose home
+  ansible.builtin.file:
+    path: '{{ compose_home }}'
+    state: directory
+    owner: '{{ compose_user }}'
+    group: docker
+    mode: '0755'
+
+- name: Copy compose project
+  ansible.builtin.copy:
+    src: '{{ item }}'
+    dest: '{{ compose_home }}/'
+    owner: '{{ compose_user }}'
+    group: docker
+    mode: '0644'
+  loop: '{{ compose_projects }}'
+
+- name: Update compose project env
+  ansible.builtin.template:
+    src: '{{ item }}.env'
+    dest: '{{ compose_home }}/{{ item }}/.env'
+    owner: '{{ compose_user }}'
+    group: docker
+    mode: '0640'
+  no_log: true
+  loop: '{{ compose_projects }}'
+
+- name: Start compose project
+  become: true
+  become_user: '{{ compose_user }}'
+  community.docker.docker_compose_v2:
+    project_src: '{{ compose_home }}/{{ item }}'
+    build: always
+  loop: '{{ compose_projects }}'
+...

@@ -1,0 +1,120 @@
+---
+services:
+  angie:
+    container_name: angie
+    depends_on: [django-app, node-app, wordpress]
+    image: docker.angie.software/angie:${ANGIE_VERSION}
+    networks: [dynamicweb]
+    ports:
+      - name: django-app
+        target: 8081
+        host_ip: '0.0.0.0'
+        published: '8081'
+        protocol: tcp
+        app_protocol: http
+        mode: host
+      - name: node-app
+        target: 8082
+        host_ip: '0.0.0.0'
+        published: '8082'
+        protocol: tcp
+        app_protocol: http
+        mode: host
+      - name: wordpress
+        target: 8083
+        host_ip: '0.0.0.0'
+        published: '8083'
+        protocol: tcp
+        app_protocol: http
+        mode: host
+    volumes:
+      - type: bind
+        source: angie
+        target: /etc/angie/http.d
+      - type: bind
+        source: data/wordpress
+        target: /var/www/html
+        bind:
+          create_host_path: true
+      - type: bind
+        source: data/django-app/static
+        target: /django-app/static
+        bind:
+          create_host_path: true
+    restart: unless-stopped
+
+  django-app:
+    build:
+      context: django-app
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION}
+    container_name: django-app
+    image: ${REPO}/django-app:${DJANGO_APP_VERSION}
+    environment:
+      DEBUG: ${DJANGO_APP_DEBUG}
+      SECRET_KEY: ${DJANGO_APP_SECRET}
+      DJANGO_SUPERUSER_USERNAME: ${DJANGO_APP_SUPERUSER}
+      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_APP_SUPERPASS}
+      DJANGO_SUPERUSER_EMAIL: ${DJANGO_APP_SUPERMAIL}
+    networks: [dynamicweb]
+    volumes:
+      - type: bind
+        source: data/django-app/static
+        target: /app/static
+        bind:
+          create_host_path: true
+      - type: bind
+        source: data/django-app/db
+        target: /app/db
+        bind:
+          create_host_path: true
+
+  node-app:
+    container_name: node-app
+    image: node:${NODE_VERSION}
+    command: node test.js
+    networks: [dynamicweb]
+    volumes:
+      - type: bind
+        source: node-app
+        target: /app
+    working_dir: /app
+
+  wordpress:
+    container_name: wordpress
+    depends_on: [wordpress-db]
+    image: wordpress:${WORDPRESS_VERSION}
+    environment:
+      WORDPRESS_DB_HOST: wordpress-db
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+    networks: [dynamicweb]
+    volumes:
+      - type: bind
+        source: data/wordpress
+        target: /var/www/html
+        bind:
+          create_host_path: true
+    restart: unless-stopped
+
+  wordpress-db:
+    container_name: wordpress-db
+    image: mysql:${WORDPRESS_DB_VERSION}
+    environment:
+      MYSQL_DATABASE: ${WORDPRESS_DB_NAME}
+      MYSQL_USER: ${WORDPRESS_DB_USER}
+      MYSQL_ROOT_PASSWORD: ${WORDPRESS_DB_ROOT}
+      MYSQL_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+    networks: [dynamicweb]
+    volumes:
+      - type: bind
+        source: data/wordpress-db
+        target: /var/lib/mysql
+        bind:
+          create_host_path: true
+    restart: unless-stopped
+
+networks:
+  dynamicweb:
+...
